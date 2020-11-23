@@ -10,19 +10,21 @@ void   LinkedListPopSortedEnd      (struct LinkedList* list, size_t pop_index);
 void   LinkedListPushSortedLinking (struct LinkedList* list, Elem_t value, size_t index);
 size_t LinkedListUpdateFreeCell    (struct LinkedList* list);
 void   LinkedListInsertEmpty       (struct LinkedList* list, Elem_t value);
-void   freeLinkedListNode                    (struct LinkedList* list, size_t free_index);
+void   freeNode                    (struct LinkedList* list, size_t free_index);
 
 
 struct LinkedList* NewLinkedList(size_t capacity) {
     assert(capacity > 0);
     struct LinkedList* list = (struct LinkedList*)calloc(1, sizeof(struct LinkedList));
-    list->array = (struct LinkedListNode*)calloc(capacity, sizeof(struct LinkedListNode));
+    list->array = (struct Node*)calloc(capacity, sizeof(struct Node));
     list->capacity = capacity;
     list->first_free = 1;
     list->size = 0;
 
     for (size_t i = 0; i < capacity; ++i) {
-        list->array[i].value = NAN;
+        #ifdef _DEBUG
+            list->array[i].value = NAN;
+        #endif
         if (i < capacity - 1 && i > 0) {
             list->array[i].next = i + 1;
         }
@@ -77,11 +79,11 @@ Elem_t LinkedListGetIthLogical(struct LinkedList* list, size_t index) {
 }
 
 Elem_t LinkedListGetFront(struct LinkedList* list) {
-    return LinkedListGetIthLogical(list, list->head);
+    return LinkedListGetIthLogical(list, 0);
 }
 
 Elem_t LinkedListGetBack(struct LinkedList* list) {
-    return LinkedListGetIthLogical(list, list->tail);
+    return LinkedListGetIthLogical(list, list->size - 1);
 }
 
 void LinkedListPushBack(struct LinkedList* list, Elem_t value) {
@@ -118,7 +120,7 @@ void LinkedListInsertEmpty(struct LinkedList* list, Elem_t value) {
     list->array[push_index].value = value;
     list->head = push_index;
     list->tail = push_index;
-    list->size++;
+    list->size = 1;
 }
 
 
@@ -127,7 +129,7 @@ void LinkedListPushSortedLinking(struct LinkedList* list, size_t place_to_insert
     assert(list->size > 0);
     assert(list->sorted);
 
-    struct LinkedListNode* array = list->array;
+    struct Node* array = list->array;
     if (array[place_to_insert].prev != 0) {
         array[array[place_to_insert].prev].next = array[place_to_insert].next;
     }
@@ -149,11 +151,13 @@ size_t LinkedListUpdateFreeCell(struct LinkedList* list) {
 void LinkedListPushAfterPhysI(struct LinkedList* list, Elem_t value, size_t index) {
     assert(list);
     assert(list->size > 0);
-    assert(!isnan(list->array[index].value));
+    #ifdef _DEBUG
+        assert(!isnan(list->array[index].value));
+    #endif
 
     ASSERT_OK
     size_t place_to_insert = 0;
-    struct LinkedListNode* array = list->array;
+    struct Node* array = list->array;
     if (list->sorted && index == list->tail && index < list->capacity) {
         place_to_insert = list->tail + 1;
         LinkedListPushSortedLinking(list, list->tail + 1);
@@ -181,11 +185,13 @@ void LinkedListPushAfterPhysI(struct LinkedList* list, Elem_t value, size_t inde
 void LinkedListPushBeforePhysI(struct LinkedList* list, Elem_t value, size_t index) {
     assert(list);
     assert(list->size > 0);
-    assert(!isnan(list->array[index].value));
+    #ifdef _DEBUG
+        assert(!isnan(list->array[index].value));
+    #endif
 
     ASSERT_OK
     size_t place_to_insert = 0;
-    struct LinkedListNode* array = list->array;
+    struct Node* array = list->array;
     if (list->sorted && index == list->head && list->head > 1) {
         /*it is still sorted*/
         place_to_insert = list->head - 1;
@@ -215,10 +221,12 @@ void LinkedListPushBeforePhysI(struct LinkedList* list, Elem_t value, size_t ind
 
 void LinkedListPopSortedEnd(struct LinkedList* list, size_t pop_index) {
     assert(list);
-    assert(!isnan(list->array[pop_index].value));
+    #ifdef _DEBUG
+        assert(!isnan(list->array[pop_index].value));
+    #endif
     assert(list->sorted);
 
-    struct LinkedListNode* array = list->array;
+    struct Node* array = list->array;
     size_t left_i = array[pop_index].prev;
     size_t right_i = array[pop_index].next;
     if (pop_index == list->head) {
@@ -241,7 +249,7 @@ void LinkedListPopSortedEnd(struct LinkedList* list, size_t pop_index) {
 
 }
 
-void freeLinkedListNode(struct LinkedList* list, size_t free_index) {
+void freeNode(struct LinkedList* list, size_t free_index) {
     list->array[list->first_free].prev = free_index;
     list->array[free_index].next = list->first_free;
     list->first_free = free_index;
@@ -249,11 +257,13 @@ void freeLinkedListNode(struct LinkedList* list, size_t free_index) {
 
 void LinkedListPopPhysI(struct LinkedList* list, size_t pop_index) {
     assert(list);
-    assert(!isnan(list->array[pop_index].value));
+    #ifdef _DEBUG
+        assert(!isnan(list->array[pop_index].value));
+    #endif
 
     ASSERT_OK
 
-    struct LinkedListNode* array = list->array;
+    struct Node* array = list->array;
     size_t left_i = array[pop_index].prev;
     size_t right_i = array[pop_index].next;
 
@@ -268,10 +278,12 @@ void LinkedListPopPhysI(struct LinkedList* list, size_t pop_index) {
         LinkedListPopSortedEnd(list, pop_index);
     } else {
         list->sorted = false;
-        freeLinkedListNode(list, pop_index);
+        freeNode(list, pop_index);
     }
 
-    array[pop_index].value = NAN;
+    #ifdef _DEBUG
+        array[pop_index].value = NAN;
+    #endif
 
     if (left_i == 0) {
         list->head = right_i;
@@ -361,12 +373,16 @@ void LinkedList_make_graph(struct LinkedList* list) {
     FILE* output = fopen("graph.txt", "w");
     assert(output);
     fprintf(output, start_str);
-    struct LinkedListNode* array = list->array;
+    struct Node* array = list->array;
     for (size_t i = 0; i < list->capacity; ++i) {
         size_t last_elem = array[i].prev;
         size_t next_elem = array[i].next;
         fprintf(output, "\tel%-8zu [shape=record,label=\"{{<f0> phys pos:\\n %zu} | { <f1>prev:\\n %zu | value:\\n %lf | <f2> next:\\n %zu}}\"", i, i, last_elem, array[i].value, next_elem);
-        if (isnan(array[i].value)) {
+        #ifdef _DEBUG
+            if (isnan(array[i].value)) {
+        #else
+            if (array[i].value == 0) {
+        #endif
             fprintf(output, "style=filled,fillcolor=\"#ff8080\"]\n");
         } else {
             fprintf(output, "]\n");
@@ -418,10 +434,12 @@ void LinkedListSort(struct LinkedList* list) {
 
     ASSERT_OK
 
-    struct LinkedListNode* new_array = (struct LinkedListNode*)calloc(list->capacity, sizeof(struct LinkedListNode));
+    struct Node* new_array = (struct Node*)calloc(list->capacity, sizeof(struct Node));
     assert(new_array);
     size_t cur_ind = list->head;
-    new_array[0].value = NAN;
+    #ifdef _DEBUG
+        new_array[0].value = NAN;
+    #endif
     for (size_t i = 0; i < list->size; ++i) {
         new_array[i + 1].value = list->array[cur_ind].value;
         new_array[i + 1].prev = i;
@@ -432,7 +450,9 @@ void LinkedListSort(struct LinkedList* list) {
         if (i != list->capacity - 1) {
             new_array[i].next = i + 1;
         }
-        new_array[i].value = NAN;
+        #ifdef _DEBUG
+            new_array[i].value = NAN;
+        #endif
         if (i != list->size + 1) {
             new_array[i].prev = i - 1;
         }

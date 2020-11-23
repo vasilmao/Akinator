@@ -1,1 +1,1 @@
-g++ main.cpp Akinator.cpp LinkedList.cpp file_reader.cpp
+g++ main.cpp Akinator.cpp file_reader.cpp LinkedList.cpp

@@ -11,6 +11,7 @@ enum Requests {
 void printOptions();
 
 int main() {
+    txSpeak("bruh");
     Tree tree = {};
     AKconstructTree(&tree);
 

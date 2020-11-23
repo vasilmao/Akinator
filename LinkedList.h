@@ -3,7 +3,9 @@
 #include <assert.h>
 #include <math.h>
 
-typedef double Elem_t;
+struct AKNode;
+
+typedef AKNode* Elem_t;
 
 #define DEF_ERROR(name, number) name = number,
 
@@ -13,14 +15,14 @@ enum ListErrors {
 
 #undef DEF_ERROR
 
-struct LinkedListNode {
+struct Node {
     size_t next;
     size_t prev;
     Elem_t value;
 };
 
 struct LinkedList {
-    LinkedListNode* array;
+    Node* array;
     size_t capacity;
     size_t first_free;
     size_t head;

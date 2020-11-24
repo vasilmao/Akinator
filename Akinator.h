@@ -21,19 +21,17 @@ struct Tree {
     size_t size;
 };
 
-
-void AKconstructTree(Tree* tree);
-void AKaddLeaf(Tree* tree, AKNode* node);
-void AKsuggestAnswer(Tree* tree, AKNode* node);
-char* scanString();
-void  destroyString(char* string);
-void AKaddNodeEmpty(Tree* tree);
-void AKsearch(Tree* tree);
-void AKaskUser(Tree* tree, AKNode* node);
-void AKnodeDestroy(AKNode* node);
-void AKdestroy(Tree* tree);
-void AKprintCharacteristics(Tree* tree, char* entity_name);
-void AKprintCharacteristicList(AKNode* node, LinkedList* list);
+void AKsay(char* format, ...);
+AKNode* findCharacteristicsList(AKNode* node, LinkedList* list, char* entity_name);
+AKNode* findEntity(AKNode* node, char* entity_name);
 void AKcompareCharateristics(Tree* tree, char* compare_name1, char* compare_name2);
-void AKsaveToFile(Tree* tree, const char* filename);
+void AKprintCharacteristicsList(AKNode* node, LinkedList* list);
+void AKprintCharacteristics(Tree* tree, char* entity_name);
 void AKloadFromFile(Tree* tree, const char* filename);
+void AKsaveToFile(Tree* tree, const char* filename);
+void AKconstructTree(Tree* tree);
+void AKdestroy(Tree* tree);
+void AKaskUser(Tree* tree, AKNode* node);
+char* scanString();
+void AKsearch(Tree* tree);
+void destroyString(char* string);

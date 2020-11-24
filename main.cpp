@@ -11,9 +11,12 @@ enum Requests {
 void printOptions();
 
 int main() {
-    txSpeak("bruh");
+
     Tree tree = {};
     AKconstructTree(&tree);
+
+    AKsay("Hello, I am the most intelligent AI in the world.\n");
+    AKsay("I can guess anything you can imagine.\n");
 
     #define DEF_CMD(cmd, description, number, code) \
         if (command == number) {                    \
@@ -25,14 +28,14 @@ int main() {
         int command = 0;
         int res = scanf("%d", &command);
         if (res == 0) {
-            printf("Sorry, that is not a command\n");
+            AKsay("Sorry, that is not a command\n");
             continue;
         }
-        printf("%d\n", command);
+        //printf("%d\n", command);
 
         #include "commands.h"
         /* else */ {
-            printf("Sorry, wrong command\n");
+            AKsay("Sorry, wrong command\n");
         }
     }
     #undef DEF_CMD

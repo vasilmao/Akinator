@@ -6,23 +6,24 @@
     current_node->side->is_leaf = true;
 
 
-void copyStringWithoutQuot(char** destination, char* string);
+void copyStringWithoutQuot(char** destination, char* str);
 bool isPositiveAnswer(char s);
 bool isLeftChild(AKNode* node);
 size_t countCommonChars(LinkedList* list1, LinkedList* list2);
-void recursiveFileWrite(AKNode* node, FILE* file);
+void writeFileNode(AKNode* node, FILE* file);
 void addLeaf(Tree* tree, AKNode* node);
 void suggestAnswer(Tree* tree, AKNode* node);
 void addNodeEmpty(Tree* tree);
 void AKnodeDestroy(AKNode* node);
+void AKwriteGraphNode(AKNode* node, FILE* file);
 
-void AKsay(char* format, ...) {
-    char* string_start = (char*)calloc(200, sizeof(char));
-    char* out_buffer = string_start;
+void AKsay(const char* format, ...) {
+    char* str_start = (char*)calloc(200, sizeof(char));
+    char* out_buffer = str_start;
     va_list arguments;
     va_start(arguments, format);
     vsprintf(out_buffer, format, arguments);
-    printf("%s\n", out_buffer);
+    printf("%s", out_buffer);
     txSpeak("%s", out_buffer);
     free(out_buffer);
     va_end(arguments);
@@ -32,15 +33,20 @@ bool isPositiveAnswer(char s) {
     return (s == '+');
 }
 
-void copyStringWithoutQuot(char** destination, char* string) {
-    string++;
-    size_t str_len = strlen(string);
+void copyStringWithoutQuot(char** destination, char* str) {
+    assert(destination);
+    assert(str);
+    str++;
+    size_t str_len = strlen(str);
     *destination = (char*)calloc(str_len, sizeof(char));
-    memcpy(*destination, string, str_len);
+    memcpy(*destination, str, str_len);
     (*destination)[str_len - 1] = '\0';
 }
 
 AKNode* findCharacteristicsList(AKNode* node, LinkedList* list, char* entity_name) {
+    assert(node);
+    assert(list);
+    assert(entity_name);
     LinkedListPushBack(list, node);
     if (node->is_leaf) {
         if (strcmp(node->value, entity_name) == 0) {
@@ -63,6 +69,8 @@ AKNode* findCharacteristicsList(AKNode* node, LinkedList* list, char* entity_nam
 }
 
 AKNode* findEntity(AKNode* node, char* entity_name) {
+    assert(node);
+    assert(entity_name);
     if (node->is_leaf) {
         if (strcmp(node->value, entity_name) == 0) {
             return node;
@@ -78,11 +86,14 @@ AKNode* findEntity(AKNode* node, char* entity_name) {
 }
 
 bool isLeftChild(AKNode* node) {
+    assert(node);
     assert(node->parent);
     return node->parent->left == node;
 }
 
 size_t countCommonChars(LinkedList* list1, LinkedList* list2) {
+    assert(list1);
+    assert(list2);
     assert(list1->sorted);
     assert(list2->sorted);
     size_t common_number = 0;
@@ -95,6 +106,9 @@ size_t countCommonChars(LinkedList* list1, LinkedList* list2) {
 
 
 void AKcompareCharateristics(Tree* tree, char* compare_name1, char* compare_name2) {
+    assert(tree);
+    assert(compare_name1);
+    assert(compare_name2);
     LinkedList* list1 = NewLinkedList(500);
     LinkedList* list2 = NewLinkedList(500);
 
@@ -148,6 +162,8 @@ void AKcompareCharateristics(Tree* tree, char* compare_name1, char* compare_name
 }
 
 void AKprintCharacteristicsList(AKNode* node, LinkedList* list) {
+    assert(node);
+    assert(list);
     AKNode* feature = NULL;
     AKNode* last_feature = NULL;
 
@@ -159,7 +175,7 @@ void AKprintCharacteristicsList(AKNode* node, LinkedList* list) {
     printed_count += sprintf(print_buffer + printed_count, "%s is ", node->value);
 
     while (!(last_feature->is_leaf)) {
-        AKNode* feature = LinkedListGetFront(list);
+        feature = LinkedListGetFront(list);
         LinkedListPopFront(list);
 
         if (isLeftChild(feature)) {
@@ -183,6 +199,8 @@ void AKprintCharacteristicsList(AKNode* node, LinkedList* list) {
 }
 
 void AKprintCharacteristics(Tree* tree, char* entity_name) {
+    assert(tree);
+    assert(entity_name);
     LinkedList* list = NewLinkedList(500);
     AKNode* current_node = findCharacteristicsList(tree->root, list, entity_name);
     if (current_node == NULL) {
@@ -194,13 +212,15 @@ void AKprintCharacteristics(Tree* tree, char* entity_name) {
 }
 
 void AKloadFromFile(Tree* tree, const char* filename) {
+    assert(tree);
+    assert(filename);
     FILE* input = NULL;
     char* buffer_start = NULL;
     uint64_t buffer_size = 0;
     open_file(&input, filename, "r");
     read_buffer(&buffer_start, &buffer_size, filename, input);
 
-    char* buffer = strtok(buffer_start, " \t\n\r");
+    char* buffer = strtok(buffer_start, "\t\n");
     if (buffer == NULL) {
         AKsay("Sorry, database is empty\n");
         if (buffer_start != NULL) {
@@ -209,21 +229,21 @@ void AKloadFromFile(Tree* tree, const char* filename) {
         fclose(input);
         return;
     }
-    char* string = NULL;
-    char* new_string = NULL;
+    char* str = NULL;
+    char* new_str = NULL;
 
     AKNode* current_node = (AKNode*)calloc(1, sizeof(AKNode));
-    current_node->value = new_string;
+    current_node->value = new_str;
     current_node->is_leaf = true;
     tree->root = current_node;
 
     while (buffer != NULL) {
         //printf("%s\n", buffer);
         if (*buffer == '\"') {
-            string = buffer;
-            new_string = string + 1;
-            copyStringWithoutQuot(&new_string, string);
-            current_node->value = new_string;
+            str = buffer;
+            new_str = str + 1;
+            copyStringWithoutQuot(&new_str, str);
+            current_node->value = new_str;
         } else if (*buffer == '{') {
             tree->size++;
             current_node->is_leaf = false;
@@ -245,38 +265,46 @@ void AKloadFromFile(Tree* tree, const char* filename) {
             AKsay("error symbol: %c\n", *buffer);
             assert(!"OK");
         }
-        buffer = strtok(NULL, " \t\n\r");
+        buffer = strtok(NULL, "\t\n");
     }
-    //tree->root = current_node;
     free(buffer_start);
     fclose(input);
+    AKsay("Database loaded\n");
 }
 
-void recursiveFileWrite(AKNode* node, FILE* file) {
+void writeFileNode(AKNode* node, FILE* file) {
+    assert(node);
+    assert(file);
     fprintf(file, "\"%s\"\n", node->value);
     if (!node->is_leaf) {
         fprintf(file, "{\n");
-        recursiveFileWrite(node->right, file);
+        writeFileNode(node->right, file);
         fprintf(file, "}\n");
         fprintf(file, "{\n");
-        recursiveFileWrite(node->left, file);
+        writeFileNode(node->left, file);
         fprintf(file, "}\n");
     }
 }
 
 void AKsaveToFile(Tree* tree, const char* filename) {
+    assert(tree);
+    assert(filename);
     FILE* output = NULL;
     open_file(&output, filename, "w");
-    recursiveFileWrite(tree->root, output);
+    writeFileNode(tree->root, output);
     fclose(output);
+    AKsay("Database saved\n");
 }
 
 void AKconstructTree(Tree* tree) {
+    assert(tree);
     tree->root = NULL;
     tree->size = 0;
 }
 
 void addLeaf(Tree* tree, AKNode* node) {
+    assert(tree);
+    assert(node);
     node->is_leaf = false;
     tree->size++;
     char* left_child_value = node->value;
@@ -292,6 +320,7 @@ void addLeaf(Tree* tree, AKNode* node) {
         DestroyLinkedList(list);
         return;
     }
+    DestroyLinkedList(list);
 
     AKsay("What feature differs it from %s?\n", left_child_value);
     node->value = scanString();
@@ -304,18 +333,20 @@ void addLeaf(Tree* tree, AKNode* node) {
 }
 
 void suggestAnswer(Tree* tree, AKNode* node) {
+    assert(tree);
+    assert(node);
     AKsay("Is it %s?\n", node->value);
+    printf("(answer +/-) ");
     char s = ' ';
     while (isspace(s)){
         s = getchar();
     }
-    //scanf(" %c", &s);
-    //printf("%d\n", s);
     if (isPositiveAnswer(s)) {
         AKsay("I am the most intelligent AI in the world\n");
     } else {
         AKsay("Oh no... How could I be mistaken...\n");
         addLeaf(tree, node);
+        AKsay("New entity added, now i became cleverer!\n");
     }
 }
 
@@ -326,8 +357,9 @@ char* scanString() {
     return s;
 }
 
-void destroyString(char* string) {
-    free(string);
+void destroyString(char* str) {
+    assert(str);
+    free(str);
 }
 
 void addNodeEmpty(Tree* tree) {
@@ -342,29 +374,32 @@ void addNodeEmpty(Tree* tree) {
 }
 
 void AKsearch(Tree* tree) {
+    assert(tree);
     if (tree->size == 0) {
         AKsay("Database is empty :-) add something!\n");
         addNodeEmpty(tree);
     } else {
-        AKaskUser(tree, tree->root);
+        AKaskUser(tree);
     }
 }
 
-void AKaskUser(Tree* tree, AKNode* node) {
-    if (node->is_leaf) {
-        suggestAnswer(tree, node);
-        return;
+void AKaskUser(Tree* tree) {
+    assert(tree);
+    AKNode* node = tree->root;
+    while (!node->is_leaf) {
+        AKsay("%s?\n", node->value);
+        printf("(answer +/-) ");
+        char s = ' ';
+        while (isspace(s)){
+            s = getchar();
+        }
+        if (isPositiveAnswer(s)) {
+            node = node->right;
+        } else {
+            node = node->left;
+        }
     }
-    AKsay("%s?\n", node->value);
-    char s = ' ';
-    while (isspace(s)){
-        s = getchar();
-    }
-    if (isPositiveAnswer(s)) {
-        AKaskUser(tree, node->right);
-    } else {
-        AKaskUser(tree, node->left);
-    }
+    suggestAnswer(tree, node);
 }
 
 void AKnodeDestroy(AKNode* node) {
@@ -381,6 +416,33 @@ void AKnodeDestroy(AKNode* node) {
     free(node);
 }
 
+void AKwriteGraphNode(AKNode* node, FILE* file) {
+    assert(node);
+    assert(file);
+    if (node->is_leaf) {
+        fprintf(file, "\tel%p [shape=hexagon,style=filled,fillcolor=\"#c3ff82\",label=\"%s\"];\n", node, node->value);
+    } else {
+        fprintf(file, "\tel%p [style=filled,fillcolor=\"#cfe8ff\",label=\"%s\"];\n", node, node->value);
+        AKwriteGraphNode(node->left, file);
+        AKwriteGraphNode(node->right, file);
+        fprintf(file, "\tel%p -> el%p [label=\"no\" ];\n", node, node->left);
+        fprintf(file, "\tel%p -> el%p [label=\"yes\"];\n", node, node->right);
+    }
+}
+
+void AKmakeGraph(Tree* tree) {
+    assert(tree);
+    FILE* output = NULL;
+    open_file(&output, "graph.txt", "w");
+    fprintf(output, "digraph structs {\n\trankdir=HR;\toutputOrder=nodesfirst;\n");
+    AKwriteGraphNode(tree->root, output);
+    fprintf(output, "}\n");
+    fclose(output);
+    system("dot -Tsvg graph.txt>img.svg");
+    AKsay("graph saved to %s and image saved to %s", "graph.txt", "img.svg");
+}
+
 void AKdestroy(Tree* tree) {
+    assert(tree);
     AKnodeDestroy(tree->root);
 }

@@ -1,0 +1,271 @@
+"OOP"
+{
+"loves algosi"
+{
+"has tail"
+{
+"fast"
+{
+"Ilya Stepanov"
+}
+{
+"python"
+}
+}
+{
+"your life"
+{
+"govnocode"
+{
+"know more that 30 words"
+{
+"works with first time"
+{
+"c++"
+}
+{
+"Arseniy"
+}
+}
+{
+"Yariks Akinator"
+}
+}
+{
+"maincraft"
+}
+}
+{
+"not alive"
+{
+"inheritance"
+}
+{
+"nelena"
+}
+}
+}
+}
+{
+"old"
+{
+"tries to hide everything"
+{
+"encapsulation"
+}
+{
+"can die"
+{
+"IVT"
+}
+{
+"alive"
+{
+"ded"
+}
+{
+"java"
+}
+}
+}
+}
+{
+"mesherin"
+}
+}
+}
+{
+"halyava"
+{
+"2D"
+{
+"oneme"
+}
+{
+"adequate"
+{
+"vedet algosy"
+{
+"artur"
+}
+{
+"algosy"
+}
+}
+{
+"made from cardboard"
+{
+"has windows"
+{
+"hostel"
+}
+{
+"box"
+}
+}
+{
+"drunk"
+{
+"always drunk"
+{
+"MTUSI"
+}
+{
+"RT"
+}
+}
+{
+"arkasha"
+}
+}
+}
+}
+}
+{
+"jopa"
+{
+"hospitality"
+{
+"in moscow"
+{
+"works for O(1)"
+{
+"hach palatka"
+}
+{
+"ICPC"
+}
+}
+{
+"animal"
+{
+"chupocabra"
+}
+{
+"kirov"
+}
+}
+}
+{
+"human resembling"
+{
+"passed session"
+{
+"session"
+}
+{
+"usefull"
+{
+"fridge"
+}
+{
+"B05-032"
+}
+}
+}
+{
+"delicious food"
+{
+"shaverma"
+}
+{
+"lives with you"
+{
+"tarakan"
+}
+{
+"human"
+{
+"ivanova"
+}
+{
+"staty"
+}
+}
+}
+}
+}
+}
+{
+"wooden"
+{
+"could be prayed on"
+{
+"wooden statuette of raigor"
+}
+{
+"door"
+}
+}
+{
+"cute"
+{
+"drinkable"
+{
+"coffee"
+}
+{
+"made of cloth"
+{
+"tapestry"
+}
+{
+"lizard-alike"
+{
+"being speedrun"
+{
+"skyrim"
+}
+{
+"creator of this akinator"
+}
+}
+{
+"elf"
+{
+"legolas"
+}
+{
+"this"
+{
+"Akinator"
+}
+{
+"material"
+{
+"poltorashka"
+}
+{
+"segment-tree"
+}
+}
+}
+}
+}
+}
+}
+{
+"lack of brains"
+{
+"can be drowned"
+{
+"ship"
+}
+{
+"dolbojob"
+}
+}
+{
+"continues on musatych"
+{
+"sleep"
+}
+{
+"musatych"
+}
+}
+}
+}
+}
+}
+}

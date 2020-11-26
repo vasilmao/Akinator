@@ -11,7 +11,7 @@ enum Requests {
 void printOptions();
 
 int main() {
-
+    std::ios_base::sync_with_stdio(true);
     Tree tree = {};
     AKconstructTree(&tree);
 
@@ -27,16 +27,21 @@ int main() {
         printOptions();
         int command = 0;
         int res = scanf("%d", &command);
+        fflush(stdin);
+        //printf("%d %d\n", res, command);
         if (res == 0) {
             AKsay("Sorry, that is not a command\n");
             continue;
         }
-        //printf("%d\n", command);
 
         #include "commands.h"
         /* else */ {
             AKsay("Sorry, wrong command\n");
+            char* s = (char*)calloc(10, 1);
+            scanf("%s\n", s);
+            printf("%s\n", s);
         }
+        //printf("\n");
     }
     #undef DEF_CMD
 }

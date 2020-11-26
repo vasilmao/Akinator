@@ -1,21 +1,26 @@
 #include "Akinator.h"
 
-#define CREATE_CHILD(current_node, side)                       \
-    current_node->side = (AKNode*)calloc(1, sizeof(AKNode));   \
-    current_node->side->parent = current_node;                 \
-    current_node->side->is_leaf = true;
+
+const size_t LL_start_size = 500;
 
 
-void copyStringWithoutQuot(char** destination, char* str);
-bool isPositiveAnswer(char s);
-bool isLeftChild(AKNode* node);
-size_t countCommonChars(LinkedList* list1, LinkedList* list2);
-void writeFileNode(AKNode* node, FILE* file);
-void addLeaf(Tree* tree, AKNode* node);
-void suggestAnswer(Tree* tree, AKNode* node);
-void addNodeEmpty(Tree* tree);
-void AKnodeDestroy(AKNode* node);
-void AKwriteGraphNode(AKNode* node, FILE* file);
+void   copyStringWithoutQuot(char** destination, char* str);
+bool   isPositiveAnswer     (char s);
+bool   isLeftChild          (AKNode* node);
+size_t countCommonChars     (LinkedList* list1, LinkedList* list2);
+void   writeFileNode        (AKNode* node, FILE* file);
+void   addLeaf              (Tree* tree, AKNode* node);
+void   suggestAnswer        (Tree* tree, AKNode* node);
+void   addNodeEmpty         (Tree* tree);
+void   AKnodeDestroy        (AKNode* node);
+void   AKwriteGraphNode     (AKNode* node, FILE* file);
+void   createChild          (AKNode** node, AKNode* parent);
+
+void createChild(AKNode** node, AKNode* parent) {
+    *node = (AKNode*)calloc(1, sizeof(AKNode));
+    (*node)->parent = parent;
+    (*node)->is_leaf = true;
+}
 
 void AKsay(const char* format, ...) {
     char* str_start = (char*)calloc(200, sizeof(char));
@@ -60,10 +65,12 @@ AKNode* findCharacteristicsList(AKNode* node, LinkedList* list, char* entity_nam
     if (result != NULL) {
         return result;
     }
+
     result = findCharacteristicsList(node->right, list, entity_name);
     if (result != NULL) {
         return result;
     }
+
     LinkedListPopBack(list);
     return NULL;
 }
@@ -109,24 +116,30 @@ void AKcompareCharateristics(Tree* tree, char* compare_name1, char* compare_name
     assert(tree);
     assert(compare_name1);
     assert(compare_name2);
-    LinkedList* list1 = NewLinkedList(500);
-    LinkedList* list2 = NewLinkedList(500);
+    LinkedList* list1 = NewLinkedList(LL_start_size);
+    LinkedList* list2 = NewLinkedList(LL_start_size);
 
     AKNode* node1 = findCharacteristicsList(tree->root, list1, compare_name1);
     if (node1 == NULL) {
         AKsay("Sorry, %s not found\n", compare_name1);
+        DestroyLinkedList(list1);
+        DestroyLinkedList(list2);
         return;
     }
 
     AKNode* node2 = findCharacteristicsList(tree->root, list2, compare_name2);
     if (node2 == NULL) {
         AKsay("Sorry, %s not found\n", compare_name2);
+        DestroyLinkedList(list1);
+        DestroyLinkedList(list2);
         return;
     }
 
     assert(list1->sorted);
     assert(list2->sorted);
     size_t common_number = countCommonChars(list1, list2);
+    printf("\n");
+    AKsay("Both entities found\n");
 
     if (common_number > 0) {
         char* print_buffer = (char*)calloc(200, sizeof(char));
@@ -145,7 +158,6 @@ void AKcompareCharateristics(Tree* tree, char* compare_name1, char* compare_name
             } else {
                 printed_count += sprintf(print_buffer + printed_count, ".\n");
             }
-            printf("%s\n", print_buffer);
         }
         AKsay(print_buffer);
         free(print_buffer);
@@ -201,7 +213,7 @@ void AKprintCharacteristicsList(AKNode* node, LinkedList* list) {
 void AKprintCharacteristics(Tree* tree, char* entity_name) {
     assert(tree);
     assert(entity_name);
-    LinkedList* list = NewLinkedList(500);
+    LinkedList* list = NewLinkedList(LL_start_size);
     AKNode* current_node = findCharacteristicsList(tree->root, list, entity_name);
     if (current_node == NULL) {
         AKsay("sorry, nothing found :(\n");
@@ -238,7 +250,6 @@ void AKloadFromFile(Tree* tree, const char* filename) {
     tree->root = current_node;
 
     while (buffer != NULL) {
-        //printf("%s\n", buffer);
         if (*buffer == '\"') {
             str = buffer;
             new_str = str + 1;
@@ -246,13 +257,16 @@ void AKloadFromFile(Tree* tree, const char* filename) {
             current_node->value = new_str;
         } else if (*buffer == '{') {
             tree->size++;
-            current_node->is_leaf = false;
             if (current_node->right == NULL) {
-                CREATE_CHILD(current_node, right);
+                createChild(&(current_node->right), current_node);
+                current_node->is_leaf = false;
                 current_node = current_node->right;
+                current_node->is_leaf = true;
             } else if (current_node->left == NULL) {
-                CREATE_CHILD(current_node, left);
+                createChild(&(current_node->left), current_node);
+                current_node->is_leaf = false;
                 current_node = current_node->left;
+                current_node->is_leaf = true;
             } else {
                 AKsay("wrong database\n");
                 AKsay("more than two childs of node %s\n", current_node->value);
@@ -305,14 +319,13 @@ void AKconstructTree(Tree* tree) {
 void addLeaf(Tree* tree, AKNode* node) {
     assert(tree);
     assert(node);
-    node->is_leaf = false;
-    tree->size++;
+
     char* left_child_value = node->value;
     char* right_child_value = NULL;
 
     AKsay("So... who is it?\n");
     right_child_value = scanString();
-    LinkedList* list = NewLinkedList(500);
+    LinkedList* list = NewLinkedList(LL_start_size);
     AKNode* find_result = findCharacteristicsList(tree->root, list, right_child_value);
     if (find_result != NULL) {
         AKsay("You are mistaken! I already have %s in my database!\n", right_child_value);
@@ -321,14 +334,16 @@ void addLeaf(Tree* tree, AKNode* node) {
         return;
     }
     DestroyLinkedList(list);
+    node->is_leaf = false;
+    tree->size++;
 
     AKsay("What feature differs it from %s?\n", left_child_value);
     node->value = scanString();
 
-    CREATE_CHILD(node, left);
+    createChild(&(node->left), node);
     node->left->value = left_child_value;
 
-    CREATE_CHILD(node, right);
+    createChild(&(node->right), node);
     node->right->value = right_child_value;
 }
 
@@ -336,10 +351,10 @@ void suggestAnswer(Tree* tree, AKNode* node) {
     assert(tree);
     assert(node);
     AKsay("Is it %s?\n", node->value);
-    printf("(answer +/-) ");
+    printf("(answer +/-)\n");
     char s = ' ';
     while (isspace(s)){
-        s = getchar();
+        s = (char)getchar();
     }
     if (isPositiveAnswer(s)) {
         AKsay("I am the most intelligent AI in the world\n");
@@ -352,8 +367,12 @@ void suggestAnswer(Tree* tree, AKNode* node) {
 
 char* scanString() {
     char* s = (char*)calloc(50, sizeof(char));
-    scanf("%s", s);
-    s = (char*)realloc(s, strlen(s) + 1);
+    size_t size = 50;
+    fflush(stdin);
+    size_t line_length = getline(&s, &size, stdin);
+    if (s[line_length - 1] == '\n') {
+        s[line_length - 1] = '\0';
+    }
     return s;
 }
 
@@ -366,7 +385,6 @@ void addNodeEmpty(Tree* tree) {
     assert(tree);
     assert(tree->size == 0);
     char* s = scanString();
-    //printf("%s\n", s);
     tree->root = (AKNode*)calloc(1, sizeof(AKNode));
     tree->root->value = s;
     tree->root->is_leaf = true;
@@ -388,10 +406,10 @@ void AKaskUser(Tree* tree) {
     AKNode* node = tree->root;
     while (!node->is_leaf) {
         AKsay("%s?\n", node->value);
-        printf("(answer +/-) ");
+        printf("(answer +/-)\n");
         char s = ' ';
         while (isspace(s)){
-            s = getchar();
+            s = (char)getchar();
         }
         if (isPositiveAnswer(s)) {
             node = node->right;
@@ -439,7 +457,7 @@ void AKmakeGraph(Tree* tree) {
     fprintf(output, "}\n");
     fclose(output);
     system("dot -Tsvg graph.txt>img.svg");
-    AKsay("graph saved to %s and image saved to %s", "graph.txt", "img.svg");
+    AKsay("graph saved to %s and image saved to %s\n", "graph.txt", "img.svg");
 }
 
 void AKdestroy(Tree* tree) {

@@ -10,9 +10,9 @@ DEF_CMD(print_characteristics, "Get characteristics of entity in database", 2, {
 })
 
 DEF_CMD(compare_characteristics, "Comapre characteristics of two entities", 3, {
-    AKsay("What characteristics you want to compare?\nFirst  is: ");
+    AKsay("What characteristics you want to compare?\nFirst  is:\n");
     char* entity_name1 = scanString();
-    AKsay("Second is: ");
+    AKsay("Second is:\n");
     char* entity_name2 = scanString();
     AKcompareCharateristics(&tree, entity_name1, entity_name2);
     destroyString(entity_name1);
@@ -20,7 +20,7 @@ DEF_CMD(compare_characteristics, "Comapre characteristics of two entities", 3, {
 })
 
 DEF_CMD(save_to_file, "Save database to file", 4, {
-    AKsay("Enter file name: ");
+    AKsay("Enter file name:\n");
     char* filename = scanString();
     AKsaveToFile(&tree, filename);
     destroyString(filename);
